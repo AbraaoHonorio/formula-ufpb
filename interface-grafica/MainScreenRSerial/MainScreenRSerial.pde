@@ -16,15 +16,15 @@ Serial entradaSerial;
 String portaSerial, parsed[];
 int failCOM;
 
-PFont fontePP, fonteP, fonteM, fonteG,fontePM;
-PImage header, pause, crosshairs, alerta1, alerta1RES, potMaxPNG, pedalErro1, poucaCarga,desconectado,aguardadados;
+PFont fontePP, fonteP, fonteM, fonteG, fontePM;
+PImage header, pause, crosshairs, alerta1, alerta1RES, potMaxPNG, pedalErro1, poucaCarga, desconectado, aguardadados;
 Table table;
 
 //GERAL:
-String inicioSessao, inString="000000",noString="nononono", arquivo="Dados 07.11.csv", quebraHorasGPS[];
+String inicioSessao, inString="000000", noString="nononono", arquivo="Dados 07.11.csv", quebraHorasGPS[];
 float alturaVaria=0, alturaVariaC1=0, distRectC1=0, alturaVariaC2=0, distRectC2=0, alturaVariaC3=0, distRectC3=0, alturaVariaC4=0, distRectC4=0, distRect=5, distRect2;
 float moveX, moveY, resX=0, resY=0;
-int totalLinhas=0, tableCount=0,constHR=0;
+int totalLinhas=0, tableCount=0, constHR=0;
 
 //DADOS:
 String data="xxx", hora="xxx";
@@ -58,7 +58,7 @@ void setup() {
   //TABELA
   //table = loadTable(arquivo, "header,csv");
   //totalLinhas=table.getRowCount();
-  
+
   smooth();
   frameRate(30);
   imageMode(CENTER);
@@ -74,19 +74,18 @@ void draw() {
     image(desconectado, width/2, height/2);
   if ((inString==null && failCOM==0) || (inString=="000000" && failCOM==0))
     image(aguardadados, width/2, height/2);
- 
-  mostraPos(1);
-  if(inString != "000000" && inString != null){
-  parseData();
-  //mapa();
-  rawData();
-  velocimetro();
-  caixaEsquerda1();
-  caixaEsquerda2();
-  caixaEsquerda3();
-  caixaEsquerda4(startCron);
-  forcaG();
-  //1: ativado 0: desativado
+
+  mostraPos(1);     //1: ativado 0: desativado
+  if (inString != "000000" && inString != null) {
+    parseData();
+    mapa();
+    rawData();
+    velocimetro();
+    caixaEsquerda1();
+    caixaEsquerda2();
+    caixaEsquerda3();
+    caixaEsquerda4(startCron);
+    forcaG();
   }
 }
 
@@ -109,32 +108,26 @@ void serialEvent(Serial entradaSerial) {      ///Lê a porta serial até pular l
 }
 
 void parseData() {
-  String parsed[] = split(inString,",");
-  if(parsed[0] != null)
+  String parsed[] = split(inString, ",");
+  if (parsed[0] != null)
     data = parsed[0];
-  if(parsed[1] != null)
+  if (parsed[1] != null)
     hora=parsed[1];
-  if(parsed[2] != null)
+  if (parsed[2] != null)
     longit = Float.parseFloat(parsed[2]);
-  if(parsed[3] != null)
+  if (parsed[3] != null)
     latit =  Float.parseFloat(parsed[3]);
-  if(parsed[4] != null)
+  if (parsed[4] != null)
     velocidade = Float.parseFloat(parsed[4]);
-  if(parsed[5] != null)
+  if (parsed[5] != null)
     altit = Float.parseFloat(parsed[5]);
-  if(parsed[6] != null)
+  if (parsed[6] != null)
     satel = Integer.parseInt(parsed[6]);
-//  satel = row.getInt("Satelites");
-  //gyroX = row.getFloat("GyroX");
-  //gyroY = row.getFloat("GyroY");
-  //gyroZ = row.getFloat("GyroZ");
-  //if(parsed[6] != null)
-    //accX = Float.parseFloat(parsed[6]);
-  //if(parsed[7] != null)  
-    //accY = Float.parseFloat(parsed[7]);
-  //accX = row.getFloat("AccX");
-  //accY = row.getFloat("AccY");
-  
+  if(parsed[7] != null)
+    accX = Float.parseFloat(parsed[7]);
+  if (parsed[8] != null)  
+    accY = Float.parseFloat(parsed[8]);
+
   posCarroGEO = new Location(latit, longit);
   SimplePointMarker posCarroMKR = new SimplePointMarker(posCarroGEO);
   color c = color(255, 0, 0);
@@ -148,7 +141,7 @@ void parseData() {
   tableCount++;
 }
 
-void mapa(){
+void mapa() {
   pushMatrix();
   translate(width/1.15, height/1.3);
   map.draw();
@@ -164,14 +157,15 @@ void pegaMapa() {
   //map = new UnfoldingMap(this, new Microsoft.AerialProvider()); VISAO AEREA
   //map = new UnfoldingMap(this, new Microsoft.HybridProvider()); VISAO AEREA COM RUAS MARCADAS
   //map = new UnfoldingMap(this, new Microsoft.RoadProvider()); APENAS RUAS
-  map = new UnfoldingMap(this,0,0,width/4,height/3,new OpenStreetMap.OpenStreetMapProvider()); //COMPLETO
+  map = new UnfoldingMap(this, 0, 0, width/4, height/3, new OpenStreetMap.OpenStreetMapProvider()); //COMPLETO
   //map = new UnfoldingMap(this, new OpenStreetMap.OSMGrayProvider()); NAO PEGA
   //map = new UnfoldingMap(this, new StamenMapProvider.Toner()); GAY
   //map = new UnfoldingMap(this, new StamenMapProvider.TonerBackground()); GAYER;
   //map = new UnfoldingMap(this, new StamenMapProvider.TonerLite()); CCHLA
   //map = new UnfoldingMap(this, new StamenMapProvider.WaterColor()); NAO PEGA
+  Location UFPBSalaEletrico = new Location(-7.141097, -34.850812);
   Location UFPBLoc = new Location(-7.136198, -34.845351);
-  map.zoomAndPanTo(UFPBLoc, 17);
+  map.zoomAndPanTo(UFPBSalaEletrico, 17);
 }
 
 void caixaEsquerda1() {
@@ -291,7 +285,7 @@ void cronos() {
 
 
 void rawData() {
-  if(width<1800)
+  if (width<1800)
     constHR=12;
   else
     constHR=15;
@@ -360,13 +354,13 @@ void rawData() {
 
 void forcaG() {
   image(crosshairs, width/1.65, height/2); 
-  moveX=map(accX, -2, 2, -200, 200);
-  moveY=map(accY, -2, 2, -200, 200);
+  moveX=map(accX, -1.0, 1.0, -100, 100);
+  moveY=map(accY, -1.0, 1.0, -100, 100);
   pushMatrix();
   translate(width/1.65, height/2);
   fill(255, 0, 0);
   ellipseMode(CENTER);
-  ellipse(moveX, -moveY, 15, 15);
+  ellipse(moveY, -moveX, 15, 15);
   popMatrix();
 }
 
