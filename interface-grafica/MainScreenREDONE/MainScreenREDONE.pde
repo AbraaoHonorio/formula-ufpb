@@ -13,7 +13,7 @@ PFont fontePP, fonteP, fonteM, fonteG,fontePM;
 PImage header, pause, crosshairs, alerta1, alerta1RES, potMaxPNG, pedalErro1, poucaCarga;
 Table table;
 //GERAL:
-String inicioSessao, inString="nononono", arquivo="Dados 07.11.csv", quebraHorasGPS[];
+String inicioSessao, inString="nononono", arquivo="Dados 14.01.csv", quebraHorasGPS[];
 float alturaVaria=0, alturaVariaC1=0, distRectC1=0, alturaVariaC2=0, distRectC2=0, alturaVariaC3=0, distRectC3=0, alturaVariaC4=0, distRectC4=0, distRect=5, distRect2;
 float moveX, moveY, resX=0, resY=0;
 int totalLinhas=0, tableCount=0,constHR=0;
@@ -44,7 +44,7 @@ void setup() {
   pedalErro1 = loadImage("ProblemaAcel.png");
   poucaCarga = loadImage("PoucaCarga.png");
   //TABELA
-  table = loadTable(arquivo, "header,csv");
+  table = loadTable(arquivo, "header, csv");
   totalLinhas=table.getRowCount();
   
   smooth();
@@ -57,13 +57,6 @@ void setup() {
 void draw() {
   background(224, 224, 224);
   image(header, width/2, height/18+30);
-  if (velocidade<10) {
-    if (width<1800) {
-      alerta1RES.resize(650, 144);
-      image(alerta1RES, width/2, height/1.3);
-    } else
-      image(alerta1, width/2, height/1.3);
-  }
   pegaTxt();
   mapa();
   rawData();
@@ -75,13 +68,14 @@ void draw() {
   rawData();
   forcaG();
   mostraPos(1); //1: ativado 0: desativado
+  delay(50);
 }
 
 void pegaTxt() {
   somaAccX=0;
   somaAccY=0;
   int contaG=0;
-  for (contaG=0; contaG<5; contaG++) {
+  for (contaG=0; contaG<3; contaG++) {
     TableRow row = table.getRow(tableCount);
     data = row.getString("DiaMesAno");
     hora = row.getString("HoraMinutosSegundos");
@@ -90,19 +84,20 @@ void pegaTxt() {
     velocidade = row.getFloat("Velocidade");
     altit = row.getFloat("Altitude");
     satel = row.getInt("Satelites");
-    gyroX = row.getFloat("GyroX");
-    gyroY = row.getFloat("GyroY");
-    gyroZ = row.getFloat("GyroZ");
+    //gyroX = row.getFloat("GyroX");
+    //gyroY = row.getFloat("GyroY");
+    //gyroZ = row.getFloat("GyroZ");
     accX = row.getFloat("AccX");
     accY = row.getFloat("AccY");
     somaAccX+=accX;
     somaAccY+=accY;
   }
-  accX = somaAccX/5;
-  accY = somaAccY/5;
+  accX = somaAccX/3;
+  accY = somaAccY/3;
 
   posCarroGEO = new Location(latit, longit);
   SimplePointMarker posCarroMKR = new SimplePointMarker(posCarroGEO);
+  map.zoomAndPanTo(posCarroGEO, 17);
   color c = color(255, 0, 0);
   posCarroMKR.setColor(c);
   posCarroMKR.setStrokeWeight(2);
@@ -249,7 +244,7 @@ void cronos() {
   text("Último tempo: "+ultimaCont+"s", width/12, alturaVariaC4);
   textAlign(CORNER);
   popMatrix();
-  if (velocidade>30) {
+  if (velocidade>100) {
     ultimaCont=contaTempo;
     startCron=0;
   }
@@ -326,13 +321,13 @@ void rawData() {
 
 void forcaG() {
   image(crosshairs, width/1.65, height/2); 
-  moveX=map(accX, -2, 2, -200, 200);
-  moveY=map(accY, -2, 2, -200, 200);
+  moveX=map(accX, -1, 1, -100, 100);
+  moveY=map(accY, -1, 1, -100, 100);
   pushMatrix();
   translate(width/1.65, height/2);
   fill(255, 0, 0);
   ellipseMode(CENTER);
-  ellipse(moveX, -moveY, 15, 15);
+  ellipse(moveY, moveX, 15, 15);
   popMatrix();
 }
 
